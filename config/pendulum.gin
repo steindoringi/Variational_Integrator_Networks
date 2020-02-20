@@ -1,0 +1,9 @@
+
+# System
+create_system.mass = 1.0
+create_system.length = 1.0
+create_system.g = 9.82
+create_system.friction = 0.
+
+# Model
+create_model.dim_state = 2

@@ -1,0 +1,14 @@
+
+# Model
+create_model.step_size = 1.0
+create_model.horizon = 10
+create_model.inf_horizon = 10
+create_model.dim_h_inf = 1000
+create_model.dim_h_dec = 1000
+create_model.dim_h_LSTM = 50
+create_model.dim_obs = 784
+
+
+# Training
+compile_model.learning_rate = 3e-4
+create_dataset.num_epochs = 8000

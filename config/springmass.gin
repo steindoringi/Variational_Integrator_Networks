@@ -1,0 +1,7 @@
+
+# System
+create_system.mass = 1.0
+create_system.k = 2.0
+
+# Model
+create_model.dim_state = 2

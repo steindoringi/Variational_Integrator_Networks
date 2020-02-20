@@ -1,0 +1,33 @@
+# Main
+main.train_flag = True
+main.eval_flag = True
+main.save_every = 10000
+
+# Model
+
+create_model.dim_h = 1000
+create_model.activation = "tanh"
+create_model.learn_inertia = False
+
+# Data
+create_dataset.step_size = 0.1
+
+# Training
+compile_model.learning_rate = 1e-3
+create_dataset.num_epochs = 5000
+create_dataset.batch_size = 200
+create_dataset.reshuffle = True
+create_dataset.shuffle_buffer = 10000
+create_dataset.reshuffle = True
+create_dataset.min_delta = 1e-5
+create_dataset.patience = 500
+create_dataset.restore_weights = True
+
+# Evaluation
+eval_model.num_traj = 3
+eval_model.num_steps = 100
+eval_model.step_size = 0.1
+eval_model.sample = False
+eval_model.use_mean = True
+eval_model.create_animations = True
+eval_model.plot_pred = True

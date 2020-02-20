@@ -1,0 +1,10 @@
+
+# Model
+create_model.horizon = 20
+create_model.inf_horizon = 10
+create_model.dim_h_inf = 500
+create_model.dim_h_LSTM = 20
+
+# Data
+create_system.noise_std = 0.33
+
