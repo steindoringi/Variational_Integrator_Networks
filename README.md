@@ -6,6 +6,8 @@
 
 ## Ideal Pendulum: Noisy States
 
+### Test setup: given initial state, forecast the evolution for 10s.
+
 ### 3s Training data
 
 #### ResNet
@@ -44,7 +46,7 @@
 
 ## Pixel Observations
 
-### 6s Training data
+### 6s Training data. Test setup: given initial image observations, forecast the evolution for 10s.
 
 #### ResNet, VIN-SO2, VIN-VV
 
