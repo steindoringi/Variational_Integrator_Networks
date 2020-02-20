@@ -8,7 +8,7 @@ do
     do
       for model_name in ResNet VIN_VV
       do
-        python run_exp.py ./experiments $model_name pendulum $observations $num_traj 21 $seed
+        python run_exp.py ./experiments $model_name pendulum $observations $num_traj 30 $seed
       done
     done
   done

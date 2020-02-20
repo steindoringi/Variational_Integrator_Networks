@@ -14,7 +14,7 @@ create_dataset.step_size = 0.1
 
 # Training
 compile_model.learning_rate = 1e-3
-create_dataset.num_epochs = 5000
+create_dataset.num_epochs = 3000
 create_dataset.batch_size = 200
 create_dataset.reshuffle = True
 create_dataset.shuffle_buffer = 10000

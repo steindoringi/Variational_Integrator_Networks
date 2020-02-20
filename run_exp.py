@@ -51,8 +51,15 @@ def eval_model(eval_dir, model, system, model_name,
         eval_obs = np.vstack([train_obs, eval_obs])
         eval_states = np.vstack([train_states, eval_states])
 
-    if system.observations in ['noisy', 'pixels']:
+    if system.observations == 'pixels':
         y0 = eval_obs[:, :model.inf_horizon]
+    elif system.observations == 'noisy':
+        #NOTE: Use ground truth state for easier comparison.
+        # Not testing encoder network.
+        if model.infer_qdot:
+            y0 = eval_states[:, :1]
+        else:
+            y0 = eval_states[:, :2]
     else:
         y0 = eval_obs[:, :1]
 
@@ -65,8 +72,11 @@ def eval_model(eval_dir, model, system, model_name,
 
     for n in range(eval_obs.shape[0]):
 
-        if system.observations in ['noisy', 'pixels']:
+        if system.observations == 'pixels':
             pred_obs_n, x_n = model.forward(y0[n:n+1], model.step_size, num_steps-1, sample=sample, use_mean=use_mean)
+        elif system.observations == 'noisy':
+            x_n = model.dynamics_network.forward(y0[n:n+1], model.step_size, num_steps-1)
+            pred_obs_n = x_n
         else:
             pred_obs_n = model.forward(y0[n:n+1], model.step_size, num_steps-1)
             x_n = pred_obs_n
