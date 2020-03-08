@@ -55,6 +55,20 @@ class DDN(tfk.Model):
         return tf.concat(x, 1)
 
 
+class FeedForward(DDN):
+    """ Feed Forward Network """
+
+    def _build_network(self, dim_state=10, dim_h=500, activation='relu', **kwargs):
+
+        self.network = tfk.Sequential([
+            tfk.layers.Dense(dim_h, activation=activation),
+            tfk.layers.Dense(dim_state)
+        ])
+
+    def step(self, x, step_size, t):
+        return self.network(x)
+
+
 class ResNet(DDN):
     """ Residual Network """
 
@@ -440,5 +454,98 @@ class PixelLDDN(LDDN):
         log_lik = tf.reduce_mean(log_py)
         return log_lik
 
+class PixelVAE(tfk.Model):
 
+    def __init__(self, dim_obs, dim_latent, horizon, name="VAE", **kwargs):
+
+        super(PixelVAE, self).__init__(name=name)
+
+        self.dim_obs = dim_obs
+        self.dim_latent = dim_latent
+        self.horizon = horizon
+
+        self._build_network(**kwargs)
+
+    def _build_network(self, dec_inp_fn=None, dim_h_dec=1000, dim_h_inf=1000, activation='relu', **kwargs):
         
+        self.q_inf_network = tfk.Sequential([
+            tfk.layers.Dense(dim_h_inf, activation='relu'),
+            tfk.layers.Dense(dim_h_inf, activation='relu'),
+            tfk.layers.Dense(2*self.dim_latent)
+        ])
+
+        if dec_inp_fn is None:
+            dec_inp_fn = lambda x: x
+
+        self.observation_network = tfk.Sequential([
+            tfk.layers.Lambda(dec_inp_fn),
+            tfk.layers.Dense(dim_h_dec, activation='relu'),
+            tfk.layers.Dense(dim_h_dec, activation='relu'),
+            tfk.layers.Dense(self.dim_obs)
+        ])
+
+    def encode(self, y, sample=False, use_mean=False):
+        
+        batch_size = tf.shape(y)[0]
+        seq_len = tf.shape(y)[1]
+        y_inp = tf.reshape(y, [batch_size*seq_len, self.dim_obs])
+        x_param = self.q_inf_network(y_inp)
+        x_param = tf.reshape(x_param, [batch_size, seq_len, x_param.shape[1]])
+
+        if sample:
+            x_mu = x_param[:, :, :self.dim_latent]
+            x_var = tf.nn.softplus(x_param[:, :, self.dim_latent:])
+            qx = tfd.Normal(x_mu, x_var)
+            x_sample = qx.sample()
+            return x_sample
+        elif use_mean:
+            x_mu = x_param[:, :, :self.dim_latent]
+            return x_mu
+        else:
+            return x_param
+
+    def decode(self, x):
+
+        batch_size = tf.shape(x)[0]
+        seq_len = tf.shape(x)[1]
+        x = tf.reshape(x, [batch_size*seq_len, self.dim_latent])
+        y_rec = self.observation_network(x)
+        y_rec = tf.reshape(y_rec, [batch_size, seq_len, self.dim_obs])
+        return y_rec
+
+    def call(self, y):
+
+        x = self.encode(y, sample=True)
+        return self.decode(x)
+
+    def loss(self, y, y_rec):
+
+        log_py = self.log_likelihood_y(y, y_rec)
+        x_param = self.encode(y)
+        kl_x = self.kullback_leibler_x(x_param)
+        return -log_py + kl_x
+
+    def kullback_leibler_x(self, x_param):
+        x_mu = x_param[:, :, :self.dim_latent]
+        x_var = tf.nn.softplus(x_param[:, :, self.dim_latent:])
+        qx = tfd.Normal(x_mu, x_var)
+        px = tfd.Normal(tf.zeros_like(x_mu), tf.ones_like(x_var))
+        kl_x = tfd.kl_divergence(qx, px)
+        kl_x = tf.reduce_sum(kl_x, [2])
+        kl_x = tf.reduce_mean(kl_x)
+        return kl_x
+
+    def log_likelihood_y(self, y, y_rec):
+        py = tfd.Bernoulli(logits=y_rec)
+        log_py = py.log_prob(y)
+        log_py = tf.reduce_sum(log_py, [2])
+        log_lik = tf.reduce_mean(log_py)
+        return log_lik
+
+    
+
+
+
+    
+
+

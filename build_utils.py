@@ -16,7 +16,7 @@ def create_model(
     dim_obs=784,
     dim_latent=10,
     inf_horizon=1,
-    infer_qdot=False,
+    infer_qdot=True,
     **model_param
     ):
 
@@ -28,11 +28,15 @@ def create_model(
         dynamics = models.VIN_SV(step_size, horizon, name=model_name, **model_param)
     elif model_name == 'VIN_SO2':
         dynamics = models.VIN_SO2(step_size, horizon, name=model_name, **model_param)
+    elif model_name == 'FeedForward':
+        dynamics = models.FeedForward(step_size, 1, name=model_name, **model_param)
+    elif model_name in ['VAE', 'LG_VAE']:
+        dynamics = None
     else:
         raise NotImplementedError()
 
-    if model_name in ['ResNet', 'VIN_VV']:
-        infer_qdot = True
+    if model_name in ['VIN_SV', 'VIN_SO2']:
+        infer_qdot = False
 
     if observations == 'observed':
         model = dynamics
@@ -42,17 +46,20 @@ def create_model(
         model = models.NoisyLDDN(dim_obs, dim_dec_in, dynamics, inf_horizon,
             name="NoisyLDDN", infer_qdot=infer_qdot, **model_param)
     elif observations == 'pixels':
-        if model_name == 'ResNet':
+        if model_name in ['ResNet', 'FeedForward']:
             dim_dec_in = dynamics.dim_state
-            dec_inp_fn = None
         elif 'VIN' in model_name:
             dim_dec_in = dynamics.dim_Q
-            if model_name == 'VIN_SO2':
-                dec_inp_fn = lambda x: tf.concat([tf.sin(x), tf.cos(x)], 1)
-            else:
-                dec_inp_fn = None
-        model = models.PixelLDDN(dim_obs, dim_dec_in, dynamics, inf_horizon,
-            name="PixelLDDN", infer_qdot=infer_qdot, dec_inp_fn=dec_inp_fn, **model_param)
+
+        if model_name in ['VIN_SO2', 'LG_VAE']:
+            dec_inp_fn = lambda x: tf.concat([tf.sin(x), tf.cos(x)], 1)
+        else:
+            dec_inp_fn = None
+        if dynamics is not None:
+            model = models.PixelLDDN(dim_obs, dim_dec_in, dynamics, inf_horizon,
+                name="PixelLDDN", infer_qdot=infer_qdot, dec_inp_fn=dec_inp_fn, **model_param)
+        else:
+            raise NotImplementedError()
     else:
         raise NotImplementedError()
     

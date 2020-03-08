@@ -38,9 +38,9 @@ __Setup__
 - Forecast for 10s, reconstruct latent path
 
 <div style="display: flex; justify-content: row;">
-<img src="figures/pendulum/pixels-60/ResNet/1/eval/figures/traj_0.gif" width=32% title="Test"/>
-<img src="figures/pendulum/pixels-60/VIN_VV/1/eval/figures/traj_0.gif" width=32% />
-<img src="figures/pendulum/pixels-60/VIN_SO2/1/eval/figures/traj_0.gif" width=32% />
+<img src="figures/pendulum_resnet_pixels.gif" width=32% title="Test"/>
+<img src="figures/pendulum_vinvv_pixels.gif" width=32% />
+<img src="figures/pendulum_vinso2_pixels.gif" width=32% />
 </div>
 
 #### Recurrent ResNet (Left) / VIN (Middle) / VIN on SO(2) Manifold (Right)

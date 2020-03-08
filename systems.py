@@ -150,7 +150,7 @@ class SpringMass(System):
 
     def _random_init_state(self):
 
-        q0 = self.RNG.uniform(low=0.5, high=1.5)
+        q0 = self.RNG.uniform(low=1.0, high=1.5)
         sign = [-1., 1.]
         q0 = self.RNG.choice(sign) * q0
         qdot0 = self.RNG.uniform(low=-0.5, high=0.5)
@@ -173,7 +173,7 @@ class SpringMass(System):
                 plt.cla()
                 ax.set_xlim(-f_lim, f_lim)
                 ax.set_ylim(-f_lim, f_lim)
-                ax.scatter([x[traj, t]], [0.], marker='o', s=300, color="black")
+                ax.scatter([x[traj, t]], [0.], marker='o', s=400, color="black")
                 ax.axis('off')
                 f.canvas.draw()
                 y_t = np.array(f.canvas.renderer.buffer_rgba())[:, :, :1]
