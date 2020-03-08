@@ -1,57 +1,46 @@
-# Variational_Integrator_Networks (Work in Progress)
+# Variational Integrator Networks
 
-- [ ] Add HNN Baseline
-- [ ] Sampling/Uncertainty predictions plots
-- [ ] Documentation
+## Overview
 
-## Ideal Pendulum: Noisy States
+### Link to paper
 
-### Test setup: given initial state, forecast the evolution for 10s.
+![Variational Integrator Networks for Physically Structured Embeddings](https://arxiv.org/abs/1910.09349)
 
-### 3s Training data
+### Run experiment
+`python run_exp.py root_dir model_name system_name observations num_train_traj num_train_steps seed`</br>
+e.g. </br>
+`python run_exp.py experiments VIN_VV pendulum pixels 1 60 1`
 
-#### ResNet
+### Dependencies
+- tensorflow 2.1
+- tensorflow_probability
+- gin-config
+- see `requirements.txt`
 
-<p float="left">
-  <img src="figures/pendulum/noisy-30/ResNet/1/eval/figures/traj_0.gif" width="300" />
-  <img src="figures/pendulum/noisy-30/ResNet/1/eval/figures/traj_1.gif" width="300" /> 
-  <img src="figures/pendulum/noisy-30/ResNet/1/eval/figures/traj_2.gif" width="300" />
-</p>
+## Example: Ideal Pendulum, Noisy Observations
 
-#### Variational Integrator Network (Velocity Verlet)
+__Setup__
+- Train on 15s of observations (150 datapoints)
+- Test on noisless initial state, forecast for 10s
 
-<p float="left">
-  <img src="figures/pendulum/noisy-30/VIN_VV/1/eval/figures/traj_0.gif" width="300" />
-  <img src="figures/pendulum/noisy-30/VIN_VV/1/eval/figures/traj_1.gif" width="300" /> 
-  <img src="figures/pendulum/noisy-30/VIN_VV/1/eval/figures/traj_2.gif" width="300" />
-</p>
+<div style="display: flex; justify-content: row;">
+  <img src="figures/pendulum_resnet_noisy.gif" width=45%>
+  <img src="figures/pendulum_vinvv_noisy.gif" width=45%>
+</div>
 
-### 15s Training data
+#### Recurrent Residual Network (Left) / Variational Integrator Network (Right) 
 
-#### ResNet
+## Example: Ideal Pendulum, Pixel Observations
 
-<p float="left">
-  <img src="figures/pendulum/noisy-150/ResNet/1/eval/figures/traj_0.gif" width="300" />
-  <img src="figures/pendulum/noisy-150/ResNet/1/eval/figures/traj_1.gif" width="300" /> 
-  <img src="figures/pendulum/noisy-150/ResNet/1/eval/figures/traj_2.gif" width="300" />
-</p>
+__Setup__
+- Train on 6s of 28x28 pixel observations (60 datapoints)
+- Infer latent initial state from 1s of data
+- Forecast for 10s, reconstruct latent path
 
-#### Variational Integrator Network (Velocity Verlet)
+<div style="display: flex; justify-content: row;">
+<img src="figures/pendulum/pixels-60/ResNet/1/eval/figures/traj_0.gif" width=32% title="Test"/>
+<img src="figures/pendulum/pixels-60/VIN_VV/1/eval/figures/traj_0.gif" width=32% />
+<img src="figures/pendulum/pixels-60/VIN_SO2/1/eval/figures/traj_0.gif" width=32% />
+</div>
 
-<p float="left">
-  <img src="figures/pendulum/noisy-150/VIN_VV/1/eval/figures/traj_0.gif" width="300" />
-  <img src="figures/pendulum/noisy-150/VIN_VV/1/eval/figures/traj_1.gif" width="300" /> 
-  <img src="figures/pendulum/noisy-150/VIN_VV/1/eval/figures/traj_2.gif" width="300" />
-</p>
-
-## Pixel Observations
-
-### 6s Training data. Test setup: given initial image observations, forecast the evolution for 10s.
-
-#### ResNet, VIN-SO2, VIN-VV
-
-<p float="left">
-  <img src="figures/pendulum/pixels-60/ResNet/1/eval/figures/traj_0.gif" width="300" />
-  <img src="figures/pendulum/pixels-60/VIN_SO2/1/eval/figures/traj_0.gif" width="300" />
-  <img src="figures/pendulum/pixels-60/VIN_VV/1/eval/figures/traj_0.gif" width="300" />
-</p>
+#### Recurrent ResNet (Left) / VIN (Middle) / VIN on SO(2) Manifold (Right)
