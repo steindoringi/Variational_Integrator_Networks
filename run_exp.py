@@ -184,7 +184,7 @@ def main(root_dir, model_name, system_name, observations, num_train_traj, num_tr
         os.makedirs(eval_dir)
 
     model = build_utils.create_model(observations, model_name)
-    system = build_utils.create_system(system_name, observations, seed)
+    system = build_utils.create_system(system_name, observations, seed, friction=0.1)
 
     if train_flag:
 
