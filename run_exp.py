@@ -168,7 +168,7 @@ def eval_model(eval_dir, model, system, model_name,
 
 
 @gin.configurable
-def main(exp_dir, model_name, system_name, observations, num_train_traj, num_train_steps, seed,
+def main(root_dir, model_name, system_name, observations, num_train_traj, num_train_steps, seed,
         train_flag=True, eval_flag=True, save_every=100):
 
     exp_dir = os.path.join(
