@@ -96,7 +96,8 @@ class VIN(DDN):
             tfk.layers.Dense(1, use_bias=False)
         ])
 
-        if learn_inertia:
+        self.learn_inertia = learn_inertia
+        if self.learn_inertia:
             num_w = int(self.dim_Q * (self.dim_Q + 1) / 2)
             self.L_param = tf.Variable(num_w*[0.], dtype=tfk.backend.floatx())
         else:
