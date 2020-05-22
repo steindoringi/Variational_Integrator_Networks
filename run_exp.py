@@ -19,7 +19,8 @@ MODEL_COLORS = {
     "ResNet": COLORS[0],
     "VIN_VV": COLORS[1],
     "VIN_SV": COLORS[2],
-    "VIN_SO2": COLORS[3]
+    "VIN_SO2": COLORS[3],
+    "VINF_VV": COLORS[4]
 }
 
 
