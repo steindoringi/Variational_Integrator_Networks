@@ -96,7 +96,8 @@ class VIN(DDN):
             tfk.layers.Dense(1, use_bias=False)
         ])
 
-        if learn_inertia:
+        self.learn_inertia = learn_inertia
+        if self.learn_inertia:
             num_w = int(self.dim_Q * (self.dim_Q + 1) / 2)
             self.L_param = tf.Variable(num_w*[0.], dtype=tfk.backend.floatx())
         else:
@@ -133,7 +134,7 @@ class VIN_SV(VIN):
         dUdq = self.grad_potential(q)
 
         qddot = tf.einsum('jk,ik->ij', self.M_inv, dUdq)
-        q_next = 2 * q - q_prev + (step_size**2) * qddot
+        q_next = 2 * q - q_prev - (step_size**2) * qddot
 
         return tf.concat([q_next, q], 1)
 
@@ -159,7 +160,7 @@ class VIN_VV(VIN):
         q = x[:, :self.dim_Q]
         qdot = x[:, self.dim_Q:]
         dUdq = self.grad_potential(q)
-
+        
         qddot = tf.einsum('jk,ik->ij', self.M_inv, dUdq)
 
         q_next = q + step_size * qdot - 0.5 * (step_size**2) * qddot
@@ -453,11 +454,3 @@ class PixelLDDN(LDDN):
         log_py = tf.reduce_sum(log_py, [2, 1])
         log_lik = tf.reduce_mean(log_py)
         return log_lik
-
-    
-
-
-
-    
-
-
