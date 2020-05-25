@@ -96,7 +96,8 @@ class VIN(DDN):
             tfk.layers.Dense(1, use_bias=False)
         ])
 
-        if learn_inertia:
+        self.learn_inertia = learn_inertia
+        if self.learn_inertia:
             num_w = int(self.dim_Q * (self.dim_Q + 1) / 2)
             self.L_param = tf.Variable(num_w*[0.], dtype=tfk.backend.floatx())
         else:
@@ -133,7 +134,7 @@ class VIN_SV(VIN):
         dUdq = self.grad_potential(q)
 
         qddot = tf.einsum('jk,ik->ij', self.M_inv, dUdq)
-        q_next = 2 * q - q_prev + (step_size**2) * qddot
+        q_next = 2 * q - q_prev - (step_size**2) * qddot
 
         return tf.concat([q_next, q], 1)
 
@@ -159,7 +160,7 @@ class VIN_VV(VIN):
         q = x[:, :self.dim_Q]
         qdot = x[:, self.dim_Q:]
         dUdq = self.grad_potential(q)
-
+        
         qddot = tf.einsum('jk,ik->ij', self.M_inv, dUdq)
 
         q_next = q + step_size * qdot - 0.5 * (step_size**2) * qddot
@@ -219,6 +220,54 @@ class VIN_SO2(VIN):
             x.append(x_next[:, None])
 
         return tf.concat(x, 1)
+
+class VINF(VIN):
+    """ Variational Integrator Network with Friction """
+    def _build_network(self, dim_state=10, dim_h=500, activation='relu', learn_inertia=False, learn_friction=True, **kwargs):
+        super(VINF, self)._build_network(dim_state, dim_h, activation, learn_inertia, **kwargs)
+        
+        self.learn_friction = learn_friction
+        if self.learn_friction:
+            num_w = int(self.dim_Q * (self.dim_Q + 1) / 2)
+            self.B_param = tf.Variable(num_w*[0.], dtype=tfk.backend.floatx())
+        else:
+            self.B_param = None
+
+    @property
+    def B(self):
+        if self.learn_friction:
+            B = tfp.math.fill_triangular(self.B_param)
+        else:
+            B = tf.linalg.diag(tf.ones((self.dim_Q,), dtype=tfk.backend.floatx()))
+        return B
+    
+    @property
+    def M(self):
+        if self.learn_inertia:
+            return tfp.math.fill_triangular(self.L_param)
+        else:
+            return tf.linalg.diag(tf.ones((self.dim_Q,), dtype=tfk.backend.floatx()))
+
+class VINF_VV(VINF):
+    """ Velocity-Verlet VIN with Friction """
+
+    def step(self, x, step_size, t):
+        
+        q = x[:, :self.dim_Q]
+        qdot = x[:, self.dim_Q:]
+        dUdq = self.grad_potential(q)
+        qddot = tf.einsum('jk,ik->ij', self.M_inv, dUdq)
+
+        q_next = q + step_size * qdot - 0.5 * (step_size**2) * qddot
+        dUdq_next = self.grad_potential(q_next)
+
+        dUdq_mid = dUdq + dUdq_next
+        qddot_mid = tf.einsum('jk,ik->ij', self.M_inv, dUdq_mid)
+        friction = tf.einsum('jk,ik->ij', self.M_inv @ self.B, q_next - q)
+
+        qdot_next = qdot - 0.5 * step_size * qddot_mid + friction
+
+        return tf.concat([q_next, qdot_next], 1)
 
 
 class LDDN(tfk.Model):
@@ -453,11 +502,3 @@ class PixelLDDN(LDDN):
         log_py = tf.reduce_sum(log_py, [2, 1])
         log_lik = tf.reduce_mean(log_py)
         return log_lik
-
-    
-
-
-
-    
-
-

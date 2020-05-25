@@ -24,6 +24,8 @@ def create_model(
         dynamics = models.ResNet(step_size, horizon, name=model_name, **model_param)
     elif model_name == 'VIN_VV':
         dynamics = models.VIN_VV(step_size, horizon, name=model_name, **model_param)
+    elif model_name == 'VINF_VV':
+        dynamics = models.VINF_VV(step_size, horizon, name=model_name, **model_param)
     elif model_name == 'VIN_SV':
         dynamics = models.VIN_SV(step_size, horizon, name=model_name, **model_param)
     elif model_name == 'VIN_SO2':

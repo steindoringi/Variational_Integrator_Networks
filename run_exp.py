@@ -19,7 +19,8 @@ MODEL_COLORS = {
     "ResNet": COLORS[0],
     "VIN_VV": COLORS[1],
     "VIN_SV": COLORS[2],
-    "VIN_SO2": COLORS[3]
+    "VIN_SO2": COLORS[3],
+    "VINF_VV": COLORS[4]
 }
 
 
@@ -168,7 +169,7 @@ def eval_model(eval_dir, model, system, model_name,
 
 
 @gin.configurable
-def main(exp_dir, model_name, system_name, observations, num_train_traj, num_train_steps, seed,
+def main(root_dir, model_name, system_name, observations, num_train_traj, num_train_steps, seed,
         train_flag=True, eval_flag=True, save_every=100):
 
     exp_dir = os.path.join(
@@ -183,7 +184,7 @@ def main(exp_dir, model_name, system_name, observations, num_train_traj, num_tra
         os.makedirs(eval_dir)
 
     model = build_utils.create_model(observations, model_name)
-    system = build_utils.create_system(system_name, observations, seed)
+    system = build_utils.create_system(system_name, observations, seed, friction=0.1)
 
     if train_flag:
 
